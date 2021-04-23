@@ -34,6 +34,8 @@ Serial serial;                   //Define the variable port as a Serial object.
 int port;
 boolean theFlag = false;
 int myColorBackground = 0xff827560;
+char[] sbusData = new char[25];
+int[] channels = new int[17];
 
 public void setup() {
   
@@ -47,60 +49,58 @@ public void setup() {
 public void draw() {
 
   if (serial.available() > 0) {  // If data is available,
+
     if (theFlag) {
       background(myColorBackground);
       textSize(14);
       text(serial.read() + " mS", 300, 300);
-    }else background(myColorBackground);
-    
+    } else background(myColorBackground);
+
     if (serial.readChar() == 0x0F) {
-      char a = serial.readChar();
-      char b = serial.readChar();
-      char c;
-      cp5.getController("1 CH").setValue(((b & 7) << 8) | a);
-      a = serial.readChar();
-      cp5.getController("2 CH").setValue(((a & 63) << 5) | ((b & 248) >> 3));
-      b = serial.readChar();
-      c = serial.readChar();
-      cp5.getController("3 CH").setValue(((c & 1) << 10) | (b << 2) | ((a & 192) >> 6));
-      a = serial.readChar();
-      cp5.getController("4 CH").setValue(((a & 15) << 7) | ((c & 254) >> 1));
-      b = serial.readChar();
-      cp5.getController("5 CH").setValue(((b & 127) << 4) | ((a & 240) >> 4));
-      a = serial.readChar();
-      c = serial.readChar();
-      cp5.getController("6 CH").setValue(((c & 3) << 9) | (a << 1) | ((b & 128) >> 7));
-      b = serial.readChar();
-      cp5.getController("7 CH").setValue(((b & 31) << 6) | ((c & 252) >> 2));
-      a = serial.readChar();
-      cp5.getController("8 CH").setValue((a << 3) | ((b & 224) >> 5));
-      a = serial.readChar();
-      b = serial.readChar();
-      cp5.getController("9 CH").setValue(((b & 7) << 8) | a);
-      a = serial.readChar();
-      cp5.getController("10 CH").setValue(((a & 63) << 5) | ((b & 248) >> 3));
-      b = serial.readChar();
-      c = serial.readChar();
-      cp5.getController("11 CH").setValue(((c & 1) << 10) | (b << 2) | ((a & 192) >> 6));
-      a = serial.readChar();
-      cp5.getController("12 CH").setValue(((a & 15) << 7) | ((c & 254) >> 1));
-      b = serial.readChar();
-      cp5.getController("13 CH").setValue(((b & 127) << 4) | ((a & 240) >> 4));
-      a = serial.readChar();
-      c = serial.readChar();
-      cp5.getController("14 CH").setValue(((c & 3) << 9) | (a << 1) | ((b & 128) >> 7));
-      b = serial.readChar();
-      cp5.getController("15 CH").setValue(((b & 31) << 6) | ((c & 252) >> 2));
-      a = serial.readChar();
-      cp5.getController("16 CH").setValue((a << 3) | ((b & 224) >> 5));
+      for (int i=1; i<25; i++) {
+        sbusData[i] = serial.readChar();
+      }
 
-      a = serial.readChar(); // FLAGS
-      cp5.getController("Digital CH 1").setValue((a & 1));
-      cp5.getController("Digital CH 2").setValue((a & 2)>>1);
-      cp5.getController("Signal Loss").setValue((a & 4)>>2);
-      cp5.getController("Fail safe").setValue((a & 8)>>3);
+      channels[1]  = ((sbusData[1]|sbusData[2]<< 8) & 0x07FF);
+      channels[2]  = ((sbusData[2]>>3|sbusData[3]<<5) & 0x07FF);
+      channels[3]  = ((sbusData[3]>>6|sbusData[4]<<2|sbusData[5]<<10) & 0x07FF);
+      channels[4]  = ((sbusData[5]>>1|sbusData[6]<<7) & 0x07FF);
+      channels[5]  = ((sbusData[6]>>4|sbusData[7]<<4) & 0x07FF);
+      channels[6]  = ((sbusData[7]>>7|sbusData[8]<<1|sbusData[9]<<9) & 0x07FF);
+      channels[7]  = ((sbusData[9]>>2|sbusData[10]<<6) & 0x07FF);
+      channels[8]  = ((sbusData[10]>>5|sbusData[11]<<3) & 0x07FF);
+      channels[9]  = ((sbusData[12]|sbusData[13]<< 8) & 0x07FF);
+      channels[10] = ((sbusData[13]>>3|sbusData[14]<<5) & 0x07FF);
+      channels[11] = ((sbusData[14]>>6|sbusData[15]<<2|sbusData[16]<<10) & 0x07FF);
+      channels[12] = ((sbusData[16]>>1|sbusData[17]<<7) & 0x07FF);
+      channels[13] = ((sbusData[17]>>4|sbusData[18]<<4) & 0x07FF);
+      channels[14] = ((sbusData[18]>>7|sbusData[19]<<1|sbusData[20]<<9) & 0x07FF);
+      channels[15] = ((sbusData[20]>>2|sbusData[21]<<6) & 0x07FF);
+      channels[16] = ((sbusData[21]>>5|sbusData[22]<<3) & 0x07FF);
 
-      b = serial.readChar(); // 00
+      cp5.getController("1 CH").setValue(channels[1]);
+      cp5.getController("2 CH").setValue(channels[2]);
+      cp5.getController("3 CH").setValue(channels[3]);
+      cp5.getController("4 CH").setValue(channels[4]);
+      cp5.getController("5 CH").setValue(channels[5]);
+      cp5.getController("6 CH").setValue(channels[6]);
+      cp5.getController("7 CH").setValue(channels[7]);
+      cp5.getController("8 CH").setValue(channels[8]);
+      cp5.getController("9 CH").setValue(channels[9]);
+      cp5.getController("10 CH").setValue(channels[10]);
+      cp5.getController("11 CH").setValue(channels[11]);
+      cp5.getController("12 CH").setValue(channels[12]);
+      cp5.getController("13 CH").setValue(channels[13]);
+      cp5.getController("14 CH").setValue(channels[14]);
+      cp5.getController("15 CH").setValue(channels[15]);
+      cp5.getController("16 CH").setValue(channels[16]);
+
+      cp5.getController("Digital CH 1").setValue((sbusData[23] & 1));
+      cp5.getController("Digital CH 2").setValue((sbusData[23] & 2)>>1);
+      cp5.getController("Signal Loss").setValue((sbusData[23] & 4)>>2);
+      cp5.getController("Fail safe").setValue((sbusData[23] & 8)>>3);
+
+      serial.clear();
     }
   }
 }
