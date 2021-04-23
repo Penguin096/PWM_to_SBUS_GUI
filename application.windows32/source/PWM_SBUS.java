@@ -37,80 +37,123 @@ int myColorBackground = 0xff827560;
 char[] sbusData = new char[25];
 int[] channels = new int[17];
 
+// #PS
+// Выбор портов ---------------------------------------------------
+
+// Номер выбранного порта
+int selectedPortNum = 0;
+
+// Флаг Порт выбран
+boolean portSelected = false;
+
+// Предыдущее количество портов
+// нужно для автоматического обновления списков
+int currentCountOfPorts = Serial.list().length;
+int prevCountOfPorts = currentCountOfPorts;
+
+// координаты меню селектора
+int portListX = 50;
+int portListY = 50;
+int refreshBtnX = portListX + 250;
+int refreshBtnY = portListY;
+
 public void setup() {
   
   background(myColorBackground);
   noStroke();
   cp5 = new ControlP5(this);
-  InitSerial();
   InitSlider();
 }
 
 public void draw() {
 
-  if (serial.available() > 0) {  // If data is available,
+  background(myColorBackground);
 
-    if (theFlag) {
-      background(myColorBackground);
-      textSize(14);
-      text(serial.read() + " mS", 300, 300);
-    } else background(myColorBackground);
+  // Если порт выбран 
+  if (portSelected) {
 
-    if (serial.readChar() == 0x0F) {
-      for (int i=1; i<25; i++) {
-        sbusData[i] = serial.readChar();
+    if (serial.available() > 0) {  // If data is available,
+
+      if (theFlag) {        
+        textSize(14);
+        text(serial.read() + " mS", 310, 270);
+      } //else background(myColorBackground);
+
+      if (serial.readChar() == 0x0F) {
+        for (int i=1; i<25; i++) {
+          sbusData[i] = serial.readChar();
+        }
+
+        channels[1]  = ((sbusData[1]|sbusData[2]<< 8) & 0x07FF);
+        channels[2]  = ((sbusData[2]>>3|sbusData[3]<<5) & 0x07FF);
+        channels[3]  = ((sbusData[3]>>6|sbusData[4]<<2|sbusData[5]<<10) & 0x07FF);
+        channels[4]  = ((sbusData[5]>>1|sbusData[6]<<7) & 0x07FF);
+        channels[5]  = ((sbusData[6]>>4|sbusData[7]<<4) & 0x07FF);
+        channels[6]  = ((sbusData[7]>>7|sbusData[8]<<1|sbusData[9]<<9) & 0x07FF);
+        channels[7]  = ((sbusData[9]>>2|sbusData[10]<<6) & 0x07FF);
+        channels[8]  = ((sbusData[10]>>5|sbusData[11]<<3) & 0x07FF);
+        channels[9]  = ((sbusData[12]|sbusData[13]<< 8) & 0x07FF);
+        channels[10] = ((sbusData[13]>>3|sbusData[14]<<5) & 0x07FF);
+        channels[11] = ((sbusData[14]>>6|sbusData[15]<<2|sbusData[16]<<10) & 0x07FF);
+        channels[12] = ((sbusData[16]>>1|sbusData[17]<<7) & 0x07FF);
+        channels[13] = ((sbusData[17]>>4|sbusData[18]<<4) & 0x07FF);
+        channels[14] = ((sbusData[18]>>7|sbusData[19]<<1|sbusData[20]<<9) & 0x07FF);
+        channels[15] = ((sbusData[20]>>2|sbusData[21]<<6) & 0x07FF);
+        channels[16] = ((sbusData[21]>>5|sbusData[22]<<3) & 0x07FF);
+
+        cp5.getController("1 CH").setValue(channels[1]);
+        cp5.getController("2 CH").setValue(channels[2]);
+        cp5.getController("3 CH").setValue(channels[3]);
+        cp5.getController("4 CH").setValue(channels[4]);
+        cp5.getController("5 CH").setValue(channels[5]);
+        cp5.getController("6 CH").setValue(channels[6]);
+        cp5.getController("7 CH").setValue(channels[7]);
+        cp5.getController("8 CH").setValue(channels[8]);
+        cp5.getController("9 CH").setValue(channels[9]);
+        cp5.getController("10 CH").setValue(channels[10]);
+        cp5.getController("11 CH").setValue(channels[11]);
+        cp5.getController("12 CH").setValue(channels[12]);
+        cp5.getController("13 CH").setValue(channels[13]);
+        cp5.getController("14 CH").setValue(channels[14]);
+        cp5.getController("15 CH").setValue(channels[15]);
+        cp5.getController("16 CH").setValue(channels[16]);
+
+        cp5.getController("Digital CH 1").setValue((sbusData[23] & 1));
+        cp5.getController("Digital CH 2").setValue((sbusData[23] & 2)>>1);
+        cp5.getController("Signal Loss").setValue((sbusData[23] & 4)>>2);
+        cp5.getController("Fail safe").setValue((sbusData[23] & 8)>>3);
+
+        serial.clear();
       }
-
-      channels[1]  = ((sbusData[1]|sbusData[2]<< 8) & 0x07FF);
-      channels[2]  = ((sbusData[2]>>3|sbusData[3]<<5) & 0x07FF);
-      channels[3]  = ((sbusData[3]>>6|sbusData[4]<<2|sbusData[5]<<10) & 0x07FF);
-      channels[4]  = ((sbusData[5]>>1|sbusData[6]<<7) & 0x07FF);
-      channels[5]  = ((sbusData[6]>>4|sbusData[7]<<4) & 0x07FF);
-      channels[6]  = ((sbusData[7]>>7|sbusData[8]<<1|sbusData[9]<<9) & 0x07FF);
-      channels[7]  = ((sbusData[9]>>2|sbusData[10]<<6) & 0x07FF);
-      channels[8]  = ((sbusData[10]>>5|sbusData[11]<<3) & 0x07FF);
-      channels[9]  = ((sbusData[12]|sbusData[13]<< 8) & 0x07FF);
-      channels[10] = ((sbusData[13]>>3|sbusData[14]<<5) & 0x07FF);
-      channels[11] = ((sbusData[14]>>6|sbusData[15]<<2|sbusData[16]<<10) & 0x07FF);
-      channels[12] = ((sbusData[16]>>1|sbusData[17]<<7) & 0x07FF);
-      channels[13] = ((sbusData[17]>>4|sbusData[18]<<4) & 0x07FF);
-      channels[14] = ((sbusData[18]>>7|sbusData[19]<<1|sbusData[20]<<9) & 0x07FF);
-      channels[15] = ((sbusData[20]>>2|sbusData[21]<<6) & 0x07FF);
-      channels[16] = ((sbusData[21]>>5|sbusData[22]<<3) & 0x07FF);
-
-      cp5.getController("1 CH").setValue(channels[1]);
-      cp5.getController("2 CH").setValue(channels[2]);
-      cp5.getController("3 CH").setValue(channels[3]);
-      cp5.getController("4 CH").setValue(channels[4]);
-      cp5.getController("5 CH").setValue(channels[5]);
-      cp5.getController("6 CH").setValue(channels[6]);
-      cp5.getController("7 CH").setValue(channels[7]);
-      cp5.getController("8 CH").setValue(channels[8]);
-      cp5.getController("9 CH").setValue(channels[9]);
-      cp5.getController("10 CH").setValue(channels[10]);
-      cp5.getController("11 CH").setValue(channels[11]);
-      cp5.getController("12 CH").setValue(channels[12]);
-      cp5.getController("13 CH").setValue(channels[13]);
-      cp5.getController("14 CH").setValue(channels[14]);
-      cp5.getController("15 CH").setValue(channels[15]);
-      cp5.getController("16 CH").setValue(channels[16]);
-
-      cp5.getController("Digital CH 1").setValue((sbusData[23] & 1));
-      cp5.getController("Digital CH 2").setValue((sbusData[23] & 2)>>1);
-      cp5.getController("Signal Loss").setValue((sbusData[23] & 4)>>2);
-      cp5.getController("Fail safe").setValue((sbusData[23] & 8)>>3);
-
-      serial.clear();
+    }
+  } else {
+    // сравнение числа портов
+    currentCountOfPorts = Serial.list().length;
+    if (prevCountOfPorts != currentCountOfPorts) {
+      // Обновление списка портов
+      cp5.get(ScrollableList.class, "Select COM port").clear();
+      cp5.get(ScrollableList.class, "Select COM port").setItems(Serial.list());
+      prevCountOfPorts = currentCountOfPorts;
     }
   }
 }
+
+public void controlEvent(ControlEvent theEvent) {
+  // Выбор порта
+  if (theEvent.getController().getId() == 1) {
+    selectedPortNum = (int)theEvent.getController().getValue();
+    // остановка ранее подключенного порта
+    if (serial != null)
+      serial.stop();
+    // подключение к выбранному порту
+    serial = new Serial(this, Serial.list()[selectedPortNum], 100000);
+    portSelected = true;
+    cp5.get(ScrollableList.class, "Select COM port").close();
+  }
+} // Конец controlEvent
+
 public void Debug(boolean Flag) {
   theFlag = Flag;
-}
-
-public void InitSerial() {
-  String portPos = Serial.list()[1];
-  serial = new Serial(this, portPos, 100000);
 }
 
 public void InitSlider() {
@@ -259,27 +302,27 @@ public void InitSlider() {
     .lock();
 
   cp5.addToggle("Digital CH 1")
-    .setPosition(300, 20)
+    .setPosition(300, 60)
     .setSize(50, 20)
     .lock();
 
   cp5.addToggle("Digital CH 2")
-    .setPosition(300, 70)
+    .setPosition(300, 110)
     .setSize(50, 20)
     .lock();
 
   cp5.addToggle("Signal Loss")
-    .setPosition(300, 120)
+    .setPosition(300, 160)
     .setSize(50, 20)
     .lock();
 
   cp5.addToggle("Fail safe")
-    .setPosition(300, 170)
+    .setPosition(300, 210)
     .setSize(50, 20)
     .lock();
 
   cp5.addToggle("Debug")
-    .setPosition(300, 250)
+    .setPosition(300, 280)
     .setSize(50, 20)
     .setValue(false)
     .setColorBackground(0xff823030)
@@ -287,6 +330,19 @@ public void InitSlider() {
     .setColorActive(0xffbf2222)
     //.setMode(ControlP5.SWITCH)
     ;
+
+  // #ID1
+  // Меню с выбором из списка доступных портов
+  cp5.addScrollableList("Select COM port")
+    .setPosition(280, 20)
+    .setSize(85, 100)
+    .setBarHeight(20)
+    .setItemHeight(20)
+    .addItems(Serial.list())
+    .setId(1)
+    .setType(ScrollableList.LIST) // currently supported DROPDOWN and LIST
+    .close();
+  ;
 }
   public void settings() {  size(380, 360); }
   static public void main(String[] passedArgs) {
