@@ -1,4 +1,4 @@
-# PWM_to_SBUS_GUI
+# SBUS_GUI
 ## Программа для проверки и отладки SBUS (Processing)
 * Связанные проекты: https://github.com/Penguin096/PWM_to_SBUS_-AnalogRSSI-digitalRSSI_A7105
 
