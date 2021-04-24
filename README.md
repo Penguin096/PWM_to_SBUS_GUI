@@ -4,7 +4,7 @@
 
 * ![image](https://user-images.githubusercontent.com/65414023/115803704-1d0d0780-a3ea-11eb-9030-4e3dfaae206b.png)
 
-
+* Видео:https://youtu.be/605c-qysxV8
 Для отладки вышеуказанных проектов, раскомментировать строку
 //Serial.write(millis()-sbusTime);  //Отладка
 ,а в программе нажать кнопку Debug. Будет отображаться задержка между принятыми пакетами SBUS.
