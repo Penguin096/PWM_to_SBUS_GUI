@@ -104,8 +104,8 @@ void draw() {
         cp5.getController("Signal Loss").setValue((sbusData[23] & 4)>>2);
         cp5.getController("Fail safe").setValue((sbusData[23] & 8)>>3);
 
-        serial.clear();
       }
+      serial.clear();
     }
   } else {
     // сравнение числа портов
