@@ -2,7 +2,7 @@
 ## Программа для проверки и отладки SBUS (Processing)
 * Связанные проекты: https://github.com/Penguin096/PWM_to_SBUS_-AnalogRSSI-digitalRSSI_A7105
 
-* ![image](https://user-images.githubusercontent.com/65414023/115803704-1d0d0780-a3ea-11eb-9030-4e3dfaae206b.png)
+* ![image](https://raw.githubusercontent.com/Penguin096/SBUS_GUI/main/1.JPG)
 
 * Видео:https://youtu.be/605c-qysxV8
 Для отладки вышеуказанных проектов, раскомментировать строку
